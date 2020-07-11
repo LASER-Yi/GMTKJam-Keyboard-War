@@ -60,13 +60,18 @@ namespace Keyboard
         [ContextMenu("Trigger Explosion")]
         void Explosion()
         {
+            StartCoroutine(ExplosionDelay());
+        }
+
+        IEnumerator ExplosionDelay()
+        {
             // Tell the key we are going to explosion
             if(m_LinkedKey)
             {
                 m_LinkedKey.DidExplosion(this);
             }
-
-            // DestroyImmediate(this);
+            yield return null;
+            DestroyImmediate(gameObject);
         }
 
         // Stack Link
@@ -182,7 +187,6 @@ namespace Keyboard
         {
             // Damaged by nearby item
             // the real damage is in update loop, donot calc here
-            Debug.Log(this.name + "took " + damage + " Damage");
             _heat += damage;
         }
 
