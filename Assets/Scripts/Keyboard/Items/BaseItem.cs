@@ -25,7 +25,7 @@ namespace Keyboard
         public float m_HeatDissipation = 0.1f;
         public int m_ExplosionDamage = 25;
 
-        public BoxCollider m_Collider;
+        [HideInInspector] public BoxCollider m_Collider;
 
         // Mono
         protected void Awake()
@@ -83,8 +83,8 @@ namespace Keyboard
 
         // Pointer Event
         protected bool m_IsDragging = false;
-        [Header("Basic Layer")]
 
+        [Header("Basic Layer")]
         public LayerMask m_GroundLayer;
 
         private Vector3 m_DraggingDest = Vector3.zero;
