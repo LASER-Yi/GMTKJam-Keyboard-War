@@ -16,6 +16,8 @@ namespace Keyboard
         [Tooltip("Degree")]
         public float m_RotationSpeed = 90.0f;
 
+        public Transform m_RotateRig;
+
         [Header("Search")]
         // Radius boost when placing in higher floor
         public float m_ScanRadius = 10.0f;
@@ -75,12 +77,12 @@ namespace Keyboard
             Vector3 direction = m_CurrentEnemy.transform.position - transform.position;
             Quaternion rotation = Quaternion.LookRotation(direction, Vector3.up);
 
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, rotation, m_RotationSpeed * Time.deltaTime);
+            m_RotateRig.rotation = Quaternion.RotateTowards(m_RotateRig.rotation, rotation, m_RotationSpeed * Time.deltaTime);
 
 
             // Check if current rotation within line of sight
 
-            float angle = Quaternion.Angle(transform.rotation, rotation);
+            float angle = Quaternion.Angle(m_RotateRig.rotation, rotation);
             if(angle <= 1.0f)
             {
                 TryShoot();
@@ -93,7 +95,7 @@ namespace Keyboard
 
             if(!m_BulletPrefab && m_BulletPrefab.TryGetComponent<Bullet>(out _)) return;
 
-            var ray = new Ray(m_StartAt.position, transform.forward);
+            var ray = new Ray(m_StartAt.position, m_RotateRig.forward);
 
             // Use Capsule maybe
             RaycastHit hit;

@@ -8,9 +8,16 @@ using DG.Tweening;
 public class Bullet : MonoBehaviour
 {
     public float m_FlySpeed = 10.0f;
-    public float m_Damage = 35.0f;
+    public int m_Damage = 35;
     private void OnCollisionEnter(Collision other) 
     {
+        Keyboard.Enemy enemy;
+        other.collider.TryGetComponent<Keyboard.Enemy>(out enemy);
+
+        if(enemy)
+        {
+            enemy.TakeDamage(m_Damage);
+        }
         Destroy(gameObject);
     }
 

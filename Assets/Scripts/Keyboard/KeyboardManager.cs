@@ -6,6 +6,25 @@ namespace Keyboard
 {
     public class KeyboardManager : SceneSingleton<KeyboardManager>
     {
-        
+
+        private Dictionary<KeyCode, Key> mKeyList = new Dictionary<KeyCode, Key>();
+
+
+        public void RegisterKey(KeyCode code, Key key)
+        {
+            mKeyList.Add(code, key);
+        }
+
+        private void Update() 
+        {
+            foreach(var pair in mKeyList)
+            {
+                if(Input.GetKeyUp(pair.Key))
+                {
+                    //TODO: Handle key logic
+                }
+            }
+        }
+
     }
 }

@@ -30,6 +30,12 @@ namespace Keyboard
 
         private void Update()
         {
+            if(m_Health <= 0)
+            {
+                ExplosionImmediate();
+                return;
+            }
+
             if(m_StandingKey && !m_IsCoolingDown && m_ExplosionRoutine == null)
             {
                 JumpOrExplosion();
@@ -41,6 +47,11 @@ namespace Keyboard
             m_StandingKey = key;
             m_LastJumpTimestamp = Time.time;
             transform.position = ComputeStandPosition(key);
+        }
+
+        public void TakeDamage(int damage)
+        {
+            m_Health -= damage;
         }
 
         private Key FindDestnationKey()
@@ -108,12 +119,17 @@ namespace Keyboard
             m_ExplosionRoutine = StartCoroutine(ExplosionDelay());
         }
 
+        private void ExplosionImmediate()
+        {
+            DestroyImmediate(gameObject);
+        }
+
         private IEnumerator ExplosionDelay()
         {
             yield return new WaitForSeconds(m_ExplosionDelay);
             // Explosion
 
-            DestroyImmediate(gameObject);
+            ExplosionImmediate();
         }
     }   
 }

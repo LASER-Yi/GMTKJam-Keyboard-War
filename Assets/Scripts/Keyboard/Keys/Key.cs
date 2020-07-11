@@ -36,6 +36,7 @@ namespace Keyboard
         private void Awake()
         {
             m_Collider = GetComponent<BoxCollider>();
+            KeyboardManager.Instance.RegisterKey(m_KeyCode, this);
         }
 
         public bool CanLink()
