@@ -107,10 +107,42 @@ namespace Keyboard
 
         public void DidExplosion(BaseItem item)
         {
+            int index = m_ItemLink.FindIndex(link => link == item);
             if(m_ItemLink.Remove(item))
             {
-                // Exist, Reorder the tower
+                // Exist, Calc damage
+                // Compute the affect layer (stupid method)
+                int count = index == 0 ? 2 : 3;
+                int[] layer = new int[count];
+                if(index == 0)
+                {
+                    layer[0] = index;
+                    layer[1] = index + 1;
+                }
+                else
+                {
+                    layer[0] = index - 1;
+                    layer[1] = index;
+                    layer[2] = index + 1;
+                }
+
+                this.TookHeatDamage(layer, item.m_ExplosionDamage);
+
+                foreach(var key in m_KeyLink)
+                {
+                    key.TookHeatDamage(layer, item.m_ExplosionDamage);
+                }
+
+                // Reorder the tower
                 ReorderItems();
+            }
+        }
+
+        protected void TookHeatDamage(int[] layers, int damage)
+        {
+            foreach(int index in layers)
+            {
+                m_ItemLink[index].Damage(damage);
             }
         }
 

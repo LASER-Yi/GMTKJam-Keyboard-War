@@ -23,6 +23,7 @@ namespace Keyboard
 
         [Tooltip("Per Second")]
         public float m_HeatDissipation = 0.1f;
+        public int m_ExplosionDamage = 25;
 
         public BoxCollider m_Collider;
 
@@ -56,10 +57,16 @@ namespace Keyboard
 
         // Behaviours
 
+        [ContextMenu("Trigger Explosion")]
         void Explosion()
         {
             // Tell the key we are going to explosion
+            if(m_LinkedKey)
+            {
+                m_LinkedKey.DidExplosion(this);
+            }
 
+            // DestroyImmediate(this);
         }
 
         // Stack Link
@@ -169,6 +176,13 @@ namespace Keyboard
         public virtual void Deactivate()
         {
             Debug.Log("BaseItem::Deactivate is no impl");
+        }
+
+        virtual public void Damage(int damage)
+        {
+            // Damaged by nearby item
+            // the real damage is in update loop, donot calc here
+            _heat += damage;
         }
 
     }
