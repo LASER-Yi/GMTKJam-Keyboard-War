@@ -11,7 +11,7 @@ namespace Keyboard
         public KeyCode m_KeyCode;
 
         [SerializeField]
-        protected HashSet<Key> m_KeyLink = new HashSet<Key>();
+        public List<Key> m_KeyLink = new List<Key>();
 
         protected List<BaseItem> m_ItemLink = new List<BaseItem>();
 
@@ -142,6 +142,8 @@ namespace Keyboard
         {
             foreach(int index in layers)
             {
+                if(index >= m_ItemLink.Count) continue;
+
                 m_ItemLink[index].Damage(damage);
             }
         }

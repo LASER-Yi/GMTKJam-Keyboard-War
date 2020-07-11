@@ -182,6 +182,7 @@ namespace Keyboard
         {
             // Damaged by nearby item
             // the real damage is in update loop, donot calc here
+            Debug.Log(this.name + "took " + damage + " Damage");
             _heat += damage;
         }
 
