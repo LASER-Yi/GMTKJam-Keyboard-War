@@ -2,17 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemiesSpawner : MonoBehaviour
+namespace Keyboard
 {
-    // Start is called before the first frame update
-    void Start()
+    public class EnemiesSpawner : MonoBehaviour
     {
-        
-    }
+        public Key m_SpawnKey;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        public GameObject m_SpawnPrefab;
+
+        [ContextMenu("Spawn")]
+        public void Spawner()
+        {
+            var enemey = Instantiate(m_SpawnPrefab);
+
+            enemey.GetComponent<Enemy>().Initialize(m_SpawnKey);
+        }
     }
 }

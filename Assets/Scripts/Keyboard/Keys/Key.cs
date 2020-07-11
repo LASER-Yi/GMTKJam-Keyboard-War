@@ -15,7 +15,23 @@ namespace Keyboard
 
         protected List<BaseItem> m_ItemLink = new List<BaseItem>();
 
+        public int m_ItemCount
+        {
+            get
+            {
+                return m_ItemLink.Count;
+            }
+        }
+
         protected BoxCollider m_Collider;
+
+        public float m_TopSurfaceOffset
+        {
+            get
+            {
+                return m_Collider.bounds.extents.y;
+            }
+        }
 
         private void Awake()
         {
@@ -136,7 +152,7 @@ namespace Keyboard
 
         protected BaseItem SafeItemIndex(int index)
         {
-            if(index < 0 || index >= m_ItemLink.Count) return null;
+            if(index < 0 || index >= m_ItemCount) return null;
 
             return m_ItemLink[index];
         }
