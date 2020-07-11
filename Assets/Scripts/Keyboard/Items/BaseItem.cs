@@ -183,11 +183,12 @@ namespace Keyboard
             Debug.Log("BaseItem::Deactivate is no impl");
         }
 
-        virtual public void Damage(int damage)
+        public virtual void Damage(int damage)
         {
             // Damaged by nearby item
             // the real damage is in update loop, donot calc here
             _heat += damage;
+            _heat = Mathf.Max(0, _heat);
         }
 
     }

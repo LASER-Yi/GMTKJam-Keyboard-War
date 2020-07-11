@@ -116,7 +116,13 @@ namespace Keyboard
         private float GetScanRadius()
         {
             // Add Boost later
-            return m_ScanRadius;
+            float boost = 1.0f;
+            if(m_LinkedKey)
+            {
+                // TODO: Adjust
+                boost += 0.2f * Mathf.Max(m_LinkedKey.GetFloorIndex(this), 0);
+            }
+            return m_ScanRadius * boost;
         }
 
         private void ScanForEnemy()

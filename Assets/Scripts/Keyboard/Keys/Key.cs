@@ -64,6 +64,13 @@ namespace Keyboard
             return height;
         }
 
+        public int GetFloorIndex(BaseItem item)
+        {
+            int index = m_ItemLink.FindIndex(link => link == item);
+
+            return index;
+        }
+
         private void ReorderItems()
         {
             float height = m_Collider.bounds.extents.y;
@@ -105,46 +112,44 @@ namespace Keyboard
             m_ReorderRoutine = null;
         }
 
+        public void UpdateAroundHeat(int layer, int damage)
+        {
+            this.TookHeatDamage(layer, damage);
+
+            foreach(var key in m_KeyLink)
+            {
+                key.TookHeatDamage(layer, damage);
+            }
+        }
+
         public void DidExplosion(BaseItem item)
         {
-            int index = m_ItemLink.FindIndex(link => link == item);
+            int index = GetFloorIndex(item);
+            UpdateAroundHeat(index, item.m_ExplosionDamage);
+
             if(m_ItemLink.Remove(item))
             {
-                // Exist, Calc damage
-                // Compute the affect layer (stupid method)
-                int count = index == 0 ? 2 : 3;
-                int[] layer = new int[count];
-                if(index == 0)
-                {
-                    layer[0] = index;
-                    layer[1] = index + 1;
-                }
-                else
-                {
-                    layer[0] = index - 1;
-                    layer[1] = index;
-                    layer[2] = index + 1;
-                }
-
-                this.TookHeatDamage(layer, item.m_ExplosionDamage);
-
-                foreach(var key in m_KeyLink)
-                {
-                    key.TookHeatDamage(layer, item.m_ExplosionDamage);
-                }
-
                 // Reorder the tower
                 ReorderItems();
             }
         }
 
-        protected void TookHeatDamage(int[] layers, int damage)
+        protected BaseItem SafeItemIndex(int index)
         {
-            foreach(int index in layers)
-            {
-                if(index >= m_ItemLink.Count) continue;
+            if(index < 0 || index >= m_ItemLink.Count) return null;
 
-                m_ItemLink[index].Damage(damage);
+            return m_ItemLink[index];
+        }
+
+        protected void TookHeatDamage(int layer, int damage)
+        {
+            int start = layer - 1;
+            int end = layer + 1;
+
+            for (int i = start; i < end; ++i)
+            {
+                var item = SafeItemIndex(i);
+                if(item) item.Damage(damage);
             }
         }
 
