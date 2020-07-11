@@ -10,25 +10,27 @@ namespace Keyboard
     [RequireComponent(typeof(BoxCollider))]
     public class BaseItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
-        protected float m_CurrentHeat = 0;
+        // Heat from 0 - 100
+        protected float _heat = 0;
+
+        public float m_CurrentHeat
+        {
+            get
+            {
+                return _heat;
+            }
+        }
+
+        [Tooltip("Per Second")]
+        public float m_HeatDissipation = 0.1f;
+
         public BoxCollider m_Collider;
 
-        // Single Direction Link Node for Stack
-        protected BaseItem m_UpperItems;
-
         // Mono
-        private void Awake()
+        protected void Awake()
         {
             m_Collider = GetComponent<BoxCollider>();
         }
-
-        // Stack Link
-
-        // Pointer Event
-        protected bool m_IsDragging = false;
-        [Header("Basic Layer")]
-
-        public LayerMask m_GroundLayer;
 
         protected void Update()
         {
@@ -39,7 +41,39 @@ namespace Keyboard
                     transform.position = Vector3.Lerp(transform.position, m_DraggingDest, 0.1f);
                 }
             }
+
+            // Check heat, if larger then 100 explosion ourself
+            if (m_CurrentHeat >= 100.0f)
+            {
+                Explosion();
+                return;
+            }
+
+            // Then we dissipation heat
+            _heat -= m_HeatDissipation * Time.deltaTime;
+            _heat = Mathf.Max(0.0f, _heat);
         }
+
+        // Behaviours
+
+        void Explosion()
+        {
+            // Tell the key we are going to explosion
+
+        }
+
+        // Stack Link
+
+        // Single Direction Link Node for Stack
+        protected BaseItem m_UpperItems;
+
+        protected Key m_LinkedKey;
+
+        // Pointer Event
+        protected bool m_IsDragging = false;
+        [Header("Basic Layer")]
+
+        public LayerMask m_GroundLayer;
 
         private Vector3 m_DraggingDest = Vector3.zero;
         private Vector3 m_DraggingOrigin = Vector3.zero;
@@ -63,6 +97,28 @@ namespace Keyboard
             }
         }
 
+        public void TryLink(Key key)
+        {
+            // Snap to key
+            if (key != null && key != m_LinkedKey && key.LinkToKey(this))
+            {
+                // delink previous Key
+                if(m_LinkedKey != null)
+                {
+                    m_LinkedKey.RemoveFromKey(this);
+                }
+
+                m_LinkedKey = key;
+
+                StartCoroutine(ResetItem());                
+            }
+            else
+            {
+                // Let this item return to its original position
+                transform.DOMove(m_DraggingOrigin, 0.3f, false);
+            }
+        }
+
         public void OnEndDrag(PointerEventData data)
         {
             m_IsDragging = false;
@@ -75,19 +131,16 @@ namespace Keyboard
                 // TODO: Add Stack
                 Key key;
                 hit.transform.TryGetComponent<Key>(out key);
+                BaseItem item;
+                hit.transform.TryGetComponent<BaseItem>(out item);
+
                 if (key != null)
                 {
-                    // Snap to key
-                    // key.transform.position
-                    if (!key.LinkToKey(this))
-                    {
-                        // Let this item return to its original position
-                        transform.DOMove(m_DraggingOrigin, 0.3f, false);
-                    }
-                    else
-                    {
-                        StartCoroutine(ResetItem());
-                    }
+                    TryLink(key);
+                }
+                else if (item != null && item.m_LinkedKey != null)
+                {
+                    TryLink(item.m_LinkedKey);
                 }
                 else
                 {
@@ -108,12 +161,12 @@ namespace Keyboard
         }
 
         // Here's the behaviour for child class
-        protected virtual void Activate()
+        public virtual void Activate()
         {
             Debug.Log("BaseItem::Activate is no impl");
         }
 
-        protected virtual void Deactivate()
+        public virtual void Deactivate()
         {
             Debug.Log("BaseItem::Deactivate is no impl");
         }
