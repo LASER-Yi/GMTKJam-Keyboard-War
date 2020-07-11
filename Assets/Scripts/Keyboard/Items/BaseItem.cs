@@ -78,9 +78,7 @@ namespace Keyboard
 
         // Single Direction Link Node for Stack
         protected BaseItem m_UpperItems;
-
         protected Key m_LinkedKey;
-
         // Pointer Event
         protected bool m_IsDragging = false;
 
@@ -107,6 +105,19 @@ namespace Keyboard
                 Vector3 dest = hit.point + Vector3.up * 1.0f;
                 m_DraggingDest = dest;
             }
+        }
+
+        public void ForceLink(Key key)
+        {
+            key.LinkToKey(this, true);
+
+            // delink previous Key
+            if(m_LinkedKey != null)
+            {
+                m_LinkedKey.RemoveFromKey(this);
+            }
+
+            m_LinkedKey = key;
         }
 
         public void TryLink(Key key)
@@ -189,6 +200,7 @@ namespace Keyboard
             // the real damage is in update loop, donot calc here
             _heat += damage;
             _heat = Mathf.Max(0, _heat);
+            Debug.Log(name + "is damaged, remain: " + _heat);
         }
 
     }

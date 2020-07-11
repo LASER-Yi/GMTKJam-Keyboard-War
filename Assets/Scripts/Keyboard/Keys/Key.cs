@@ -29,24 +29,21 @@ namespace Keyboard
         {
             get
             {
-                return m_Collider.bounds.extents.y;
+                return m_Collider.bounds.extents.y * 2.0f;
             }
         }
 
-        private void Awake()
+        protected void Awake()
         {
             m_Collider = GetComponent<BoxCollider>();
             KeyboardManager.Instance.RegisterKey(m_KeyCode, this);
         }
 
-        public bool CanLink()
-        {
-            return true;
-        }
+        protected bool m_KeyCanLink = true;
 
-        public bool LinkToKey(BaseItem item)
+        public bool LinkToKey(BaseItem item, bool forced = false)
         {
-            if(CanLink())
+            if(m_KeyCanLink || forced)
             {
                 float itemBound = item.m_Collider.bounds.extents.y;
 
@@ -68,9 +65,9 @@ namespace Keyboard
             ReorderItems();
         }
 
-        private float GetPlaceHeight()
+        protected float GetPlaceHeight()
         {
-            float height = m_Collider.bounds.extents.y;
+            float height = m_TopSurfaceOffset;
 
             foreach(var item in m_ItemLink)
             {
@@ -90,7 +87,7 @@ namespace Keyboard
 
         private void ReorderItems()
         {
-            float height = m_Collider.bounds.extents.y;
+            float height = m_TopSurfaceOffset;
 
             foreach(var item in m_ItemLink)
             {
@@ -158,12 +155,12 @@ namespace Keyboard
             return m_ItemLink[index];
         }
 
-        protected void TookHeatDamage(int layer, int damage)
+        public void TookHeatDamage(int layer, int damage)
         {
             int start = layer - 1;
             int end = layer + 1;
 
-            for (int i = start; i < end; ++i)
+            for (int i = start; i <= end; ++i)
             {
                 var item = SafeItemIndex(i);
                 if(item) item.Damage(damage);
