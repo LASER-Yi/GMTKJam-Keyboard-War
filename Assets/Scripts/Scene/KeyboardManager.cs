@@ -25,12 +25,18 @@ namespace Keyboard
                     //TODO: Handle key logic
                     if(m_SelectingKey)
                     {
-                        m_SelectingKey.KeyTransfer(pair.Value);
+                        if(m_SelectingKey != pair.Value)
+                        {
+                            m_SelectingKey.KeyTransfer(pair.Value);
+                        }
+
+                        m_SelectingKey.DidDeselectedKey();
                         m_SelectingKey = null;
                     }
-                    else
+                    else if(pair.Value.GetLinkStatus())
                     {
                         m_SelectingKey = pair.Value;
+                        pair.Value.DidSelectedKey();
                     }
 
                     return;
@@ -39,6 +45,7 @@ namespace Keyboard
 
             if(Input.GetKeyUp(KeyCode.Escape))
             {
+                if(m_SelectingKey) m_SelectingKey.DidDeselectedKey();
                 m_SelectingKey = null;
             }
         }

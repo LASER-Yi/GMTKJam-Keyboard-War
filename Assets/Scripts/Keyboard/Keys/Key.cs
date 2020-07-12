@@ -44,8 +44,15 @@ namespace Keyboard
             {
                 m_UiText.text = m_KeyCode.ToString();
             }
+
+            m_Material = GetComponent<Renderer>().material;
         }
         protected bool m_KeyCanLink = false;
+
+        public bool GetLinkStatus()
+        {
+            return m_KeyCanLink;
+        }
 
         private void ChangeLinkStatus(bool status)
         {
@@ -58,10 +65,30 @@ namespace Keyboard
             m_UiText.enabled = m_KeyCanLink;
         }
 
+        private Material m_Material;
+
+        [Header("Status"), ColorUsage(false, false)]
+        public Color m_ExplosionColor;
+
+        public void DidSelectedKey()
+        {
+        }
+
+        public void DidDeselectedKey()
+        {
+        }
+
         // Once the key has item, the around can link 
         // The method will be call by around key
         protected void MarkLinkStatusChanged()
         {
+
+            if(m_ItemCount > 0)
+            {
+                ChangeLinkStatus(true);
+                return;
+            }
+
             bool canLink = false;
             foreach(var key in m_KeyLink)
             {
@@ -193,7 +220,7 @@ namespace Keyboard
             m_ReorderRoutine = null;
         }
 
-        public void UpdateAroundHeat(int layer, int damage)
+        public void UpdateAroundHeat(int layer, float damage)
         {
             this.TookHeatDamage(layer, damage);
 
@@ -201,6 +228,13 @@ namespace Keyboard
             {
                 key.TookHeatDamage(layer, damage);
             }
+        }
+
+        private string m_BaseColorName = "_BaseColor";
+
+        public void EnemeyDidExplosion(Enemy enemy)
+        {
+            UpdateAroundHeat(0, enemy.m_ExplosionDamage);
         }
 
         public void DidExplosion(BaseItem item)
@@ -222,7 +256,7 @@ namespace Keyboard
             return m_ItemLink[index];
         }
 
-        public void TookHeatDamage(int layer, int damage)
+        public void TookHeatDamage(int layer, float damage)
         {
             int start = layer - 1;
             int end = layer + 1;

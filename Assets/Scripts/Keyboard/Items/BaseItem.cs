@@ -11,19 +11,13 @@ namespace Keyboard
     public class BaseItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         // Heat from 0 - 100
-        protected float _heat = 0;
-
-        public float m_CurrentHeat
-        {
-            get
-            {
-                return _heat;
-            }
-        }
+        [SerializeField] protected float m_CurrentHeat = 0;
 
         [Tooltip("Per Second")]
         public float m_HeatDissipation = 0.1f;
         public int m_ExplosionDamage = 25;
+
+        public Material m_Material;
 
         [HideInInspector] public BoxCollider m_Collider;
 
@@ -31,6 +25,8 @@ namespace Keyboard
         protected void Awake()
         {
             m_Collider = GetComponent<BoxCollider>();
+            m_Material = GetComponent<Renderer>().material;
+            m_Material.SetColor("_BaseColor", m_MinHeatColor);
         }
 
         protected void Update()
@@ -51,8 +47,8 @@ namespace Keyboard
             }
 
             // Then we dissipation heat
-            _heat -= m_HeatDissipation * Time.deltaTime;
-            _heat = Mathf.Max(0.0f, _heat);
+            m_CurrentHeat -= m_HeatDissipation * Time.deltaTime;
+            m_CurrentHeat = Mathf.Max(0.0f, m_CurrentHeat);
         }
 
         // Behaviours
@@ -200,12 +196,22 @@ namespace Keyboard
             Debug.Log("BaseItem::Deactivate is no impl");
         }
 
-        public virtual void Damage(int damage)
+        [Header("Color")]
+        public Color m_MinHeatColor;
+        public Color m_MaxHeatColor;
+
+        public virtual void Damage(float damage)
         {
             // Damaged by nearby item
             // the real damage is in update loop, donot calc here
-            _heat += damage;
-            _heat = Mathf.Max(0, _heat);
+            m_CurrentHeat += damage;
+            m_CurrentHeat = Mathf.Max(0, m_CurrentHeat);
+
+            float percent = m_CurrentHeat / 100.0f;
+
+            Color current = Color.Lerp(m_MinHeatColor, m_MaxHeatColor, percent);
+
+            m_Material.SetColor("_BaseColor", current);
         }
 
     }

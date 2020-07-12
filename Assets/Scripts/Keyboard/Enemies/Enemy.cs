@@ -18,6 +18,10 @@ namespace Keyboard
                 return Time.time - m_LastJumpTimestamp < m_JumpInterval;
             }
         }
+
+        public Material m_Material;
+
+        public Color m_ExplosionColor;
         public float m_ExplosionDelay = 3f;
         public int m_ExplosionDamage = 100;
         public Key m_StandingKey;
@@ -27,17 +31,20 @@ namespace Keyboard
         private void Awake() 
         {
             m_Collider = GetComponent<BoxCollider>();
+            m_Material = GetComponent<Renderer>().material;
         }
 
         private void Update()
         {
+            if(m_ExplosionRoutine != null) return;
+
             if(m_Health <= 0)
             {
                 ExplosionImmediate();
                 return;
             }
 
-            if(m_StandingKey && !m_IsCoolingDown && m_ExplosionRoutine == null)
+            if(m_StandingKey && !m_IsCoolingDown)
             {
                 JumpOrExplosion();
             }
@@ -123,15 +130,15 @@ namespace Keyboard
         private void ExplosionImmediate()
         {
             GameManager.Instance.EnemeyDidExplosion();
-            m_StandingKey.UpdateAroundHeat(0, m_ExplosionDamage);
+            if(m_StandingKey) m_StandingKey.EnemeyDidExplosion(this);
             DestroyImmediate(gameObject);
         }
 
         private IEnumerator ExplosionDelay()
         {
+            m_Material.SetColor("_BaseColor", m_ExplosionColor);
             yield return new WaitForSeconds(m_ExplosionDelay);
             // Explosion
-
             ExplosionImmediate();
         }
     }   

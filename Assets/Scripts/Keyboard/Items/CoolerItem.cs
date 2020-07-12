@@ -34,7 +34,7 @@ namespace Keyboard
         private void Cooling()
         {
             int index = m_LinkedKey.GetFloorIndex(this);
-            m_LinkedKey.UpdateAroundHeat(index, -(int)Mathf.Ceil(m_CoolingValue * Time.deltaTime));
+            m_LinkedKey.UpdateAroundHeat(index, -m_CoolingValue * Time.deltaTime);
         }
     }
 }
