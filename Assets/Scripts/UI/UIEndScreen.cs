@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class UIEndScreen : MonoBehaviour
 {
@@ -27,7 +28,7 @@ public class UIEndScreen : MonoBehaviour
 
     public void RestartGame()
     {
-
+        SceneManager.LoadScene("MainGame", LoadSceneMode.Single);
     }
 
     public void QuitGame()

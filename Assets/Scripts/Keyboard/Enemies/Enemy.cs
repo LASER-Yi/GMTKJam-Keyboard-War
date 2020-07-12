@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.UI;
 
 namespace Keyboard
 {
@@ -31,12 +32,20 @@ namespace Keyboard
         private BoxCollider m_Collider;
         private Coroutine m_ExplosionRoutine = null;
         private AudioSource m_AudioSource;
+        public Text m_Text;
 
         private void Awake() 
         {
             m_Collider = GetComponent<BoxCollider>();
             m_Material = GetComponent<Renderer>().material;
             m_AudioSource = GetComponent<AudioSource>();
+
+            // Random text from here
+            if(m_Text)
+            {
+                string specialText = "!@#$%^&*";
+                m_Text.text = specialText[Random.Range(0, specialText.Length)].ToString();
+            }
         }
 
         private void PlaySound(AudioClip clip)
@@ -165,6 +174,7 @@ namespace Keyboard
         private IEnumerator ExplosionDelay()
         {
             m_Material.SetColor("_BaseColor", m_ExplosionColor);
+            if(m_Text) m_Text.text = "!";
             yield return new WaitForSeconds(m_ExplosionDelay);
             // Explosion
             ExplosionImmediate();
