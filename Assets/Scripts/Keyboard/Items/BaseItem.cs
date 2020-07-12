@@ -60,24 +60,30 @@ namespace Keyboard
         [ContextMenu("Trigger Explosion")]
         void Explosion()
         {
-            StartCoroutine(ExplosionDelay());
+            if(m_DidExplosion == null)
+            {
+                m_DidExplosion = StartCoroutine(ExplosionDelay());
+            }
         }
+
+        private Coroutine m_DidExplosion = null;
+
+        public float m_ExplosionDelay = 1.0f;
 
         IEnumerator ExplosionDelay()
         {
+            Deactivate();
+            yield return new WaitForSeconds(m_ExplosionDelay);
             // Tell the key we are going to explosion
             if(m_LinkedKey)
             {
                 m_LinkedKey.DidExplosion(this);
             }
-            yield return null;
+            GameManager.Instance.TowerDidExplosion();
             DestroyImmediate(gameObject);
         }
 
         // Stack Link
-
-        // Single Direction Link Node for Stack
-        protected BaseItem m_UpperItems;
         protected Key m_LinkedKey;
         // Pointer Event
         protected bool m_IsDragging = false;
@@ -102,7 +108,7 @@ namespace Keyboard
             RaycastHit hit;
             if (Physics.Raycast(start, dir, out hit, 100.0f, m_GroundLayer))
             {
-                Vector3 dest = hit.point + Vector3.up * 1.0f;
+                Vector3 dest = hit.point + Vector3.up * 10.0f;
                 m_DraggingDest = dest;
             }
         }
@@ -200,7 +206,6 @@ namespace Keyboard
             // the real damage is in update loop, donot calc here
             _heat += damage;
             _heat = Mathf.Max(0, _heat);
-            Debug.Log(name + "is damaged, remain: " + _heat);
         }
 
     }

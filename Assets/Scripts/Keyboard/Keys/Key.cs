@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using DG.Tweening;
 
 namespace Keyboard
@@ -9,6 +10,8 @@ namespace Keyboard
     public class Key : MonoBehaviour
     {
         public KeyCode m_KeyCode;
+        public Text m_UiText;
+        public bool m_ShowUiText = true;
 
         [SerializeField]
         public List<Key> m_KeyLink = new List<Key>();
@@ -29,7 +32,7 @@ namespace Keyboard
         {
             get
             {
-                return m_Collider.bounds.extents.y * 2.0f;
+                return m_Collider.bounds.extents.y;
             }
         }
 
@@ -37,9 +40,40 @@ namespace Keyboard
         {
             m_Collider = GetComponent<BoxCollider>();
             KeyboardManager.Instance.RegisterKey(m_KeyCode, this);
+            if (m_UiText && m_ShowUiText)
+            {
+                m_UiText.text = m_KeyCode.ToString();
+            }
+        }
+        protected bool m_KeyCanLink = false;
+
+        private void ChangeLinkStatus(bool status)
+        {
+            if(m_KeyCanLink == status) return;
+
+            m_KeyCanLink = status;
+
+            if(!m_ShowUiText || !m_UiText) return;
+
+            m_UiText.enabled = m_KeyCanLink;
         }
 
-        protected bool m_KeyCanLink = true;
+        // Once the key has item, the around can link 
+        // The method will be call by around key
+        protected void MarkLinkStatusChanged()
+        {
+            bool canLink = false;
+            foreach(var key in m_KeyLink)
+            {
+                if(key.m_ItemCount > 0)
+                {
+                    canLink = true;
+                    break;
+                }
+            }
+
+            ChangeLinkStatus(canLink);
+        }
 
         public bool LinkToKey(BaseItem item, bool forced = false)
         {
@@ -48,9 +82,25 @@ namespace Keyboard
                 float itemBound = item.m_Collider.bounds.extents.y;
 
                 Vector3 pos = transform.position + Vector3.up * (GetPlaceHeight() + itemBound);
-                item.transform.DOMove(pos, 0.4f);
+                if(forced)
+                {
+                    item.transform.position = pos;
+                }
+                else
+                {
+                    item.transform.DOMove(pos, 0.4f);
+                    GameManager.Instance.TowerDidLink();
+                }
 
                 m_ItemLink.Add(item);
+                if(m_ItemCount == 1)
+                {
+                    foreach(var key in m_KeyLink)
+                    {
+                        key.MarkLinkStatusChanged();
+                    }
+                }
+
                 return true;
             }
             else 
@@ -63,6 +113,14 @@ namespace Keyboard
         {
             m_ItemLink.Remove(item);
             ReorderItems();
+
+            if(m_ItemCount == 0)
+            {
+                foreach(var key in m_KeyLink)
+                {
+                    key.MarkLinkStatusChanged();
+                }
+            }
         }
 
         protected float GetPlaceHeight()
@@ -97,6 +155,15 @@ namespace Keyboard
 
                 height += 2 * boundSize;
             }
+        }
+
+        public void KeyTransfer(Key to)
+        {
+            // get the toppest item in self and transfer to to key
+            if(m_ItemCount == 0) return;
+
+            var item = m_ItemLink[m_ItemCount - 1];
+            item.TryLink(to);
         }
 
         private void DeactivateAll()

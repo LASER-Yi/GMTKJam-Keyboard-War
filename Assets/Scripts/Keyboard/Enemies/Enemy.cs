@@ -19,7 +19,8 @@ namespace Keyboard
             }
         }
         public float m_ExplosionDelay = 3f;
-        private Key m_StandingKey;
+        public int m_ExplosionDamage = 100;
+        public Key m_StandingKey;
         private BoxCollider m_Collider;
         private Coroutine m_ExplosionRoutine = null;
 
@@ -121,6 +122,8 @@ namespace Keyboard
 
         private void ExplosionImmediate()
         {
+            GameManager.Instance.EnemeyDidExplosion();
+            m_StandingKey.UpdateAroundHeat(0, m_ExplosionDamage);
             DestroyImmediate(gameObject);
         }
 
