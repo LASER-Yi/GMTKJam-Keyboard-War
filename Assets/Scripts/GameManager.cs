@@ -43,8 +43,8 @@ public class GameManager
 
     public void StartGame()
     {
-        GameObject.FindObjectOfType<SpawnManager>().StartGame();
-        GameObject.FindObjectOfType<UIManager>().StartGame();
+        SpawnManager.Instance.StartGame();
+        UIManager.Instance.StartGame();
 
         m_HighestScore = Mathf.Max(m_HighestScore, m_SessionScore);
         m_SessionScore = 0;

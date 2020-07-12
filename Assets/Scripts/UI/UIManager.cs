@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UIManager : MonoBehaviour
+public class UIManager : SceneSingleton<UIManager>
 {
     public GameObject m_TitlePrefab;
     private GameObject m_TitleInstance;

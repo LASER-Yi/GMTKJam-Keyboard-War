@@ -94,14 +94,6 @@ namespace Keyboard
             {
                 if(key.m_ItemCount > 0)
                 {
-                    // limit the moving dir so player needs to have at least two towers before moving forward
-                    var direction = (key.transform.position - transform.position).normalized;
-                    // hardcode pos-x direction
-                    if(Vector3.Dot(Vector3.left, direction) > 0.8 && key.m_ItemCount < 2)
-                    {
-                        continue;
-                    }
-
                     canLink = true;
                     break;
                 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpawnManager : MonoBehaviour
+public class SpawnManager : SceneSingleton<SpawnManager>
 {
     [Header("Enemies")]
     public List<Keyboard.EnemiesSpawner> m_EnemiesSpawners = new List<Keyboard.EnemiesSpawner>();

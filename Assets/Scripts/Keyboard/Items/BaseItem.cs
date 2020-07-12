@@ -21,6 +21,8 @@ namespace Keyboard
 
         [HideInInspector] public BoxCollider m_Collider;
 
+        [HideInInspector] public bool m_CanReplace = true;
+
         // Mono
         protected void Awake()
         {
@@ -92,11 +94,14 @@ namespace Keyboard
 
         public void OnBeginDrag(PointerEventData data)
         {
+            if(!m_CanReplace) return;
             m_IsDragging = true;
             m_DraggingOrigin = transform.position;
         }
         public void OnDrag(PointerEventData data)
         {
+            if(!m_IsDragging) return;
+
             Vector3 start = data.pointerCurrentRaycast.worldPosition + Vector3.up * 1.0f;
             Vector3 dir = Vector3.down;
 
@@ -109,43 +114,10 @@ namespace Keyboard
             }
         }
 
-        public void ForceLink(Key key)
-        {
-            key.LinkToKey(this, true);
-
-            // delink previous Key
-            if(m_LinkedKey != null)
-            {
-                m_LinkedKey.RemoveFromKey(this);
-            }
-
-            m_LinkedKey = key;
-        }
-
-        public void TryLink(Key key)
-        {
-            // Snap to key
-            if (key != null && key != m_LinkedKey && key.LinkToKey(this))
-            {
-                // delink previous Key
-                if(m_LinkedKey != null)
-                {
-                    m_LinkedKey.RemoveFromKey(this);
-                }
-
-                m_LinkedKey = key;
-
-                StartCoroutine(ResetItem());                
-            }
-            else
-            {
-                // Let this item return to its original position
-                transform.DOMove(m_DraggingOrigin, 0.3f, false);
-            }
-        }
-
         public void OnEndDrag(PointerEventData data)
         {
+            if(!m_IsDragging) return;
+
             m_IsDragging = false;
             m_DraggingDest = Vector3.zero;
 
@@ -175,6 +147,42 @@ namespace Keyboard
             }
 
             m_DraggingOrigin = Vector3.zero;
+        }
+
+        public void ForceLink(Key key)
+        {
+            key.LinkToKey(this, true);
+
+            // delink previous Key
+            if(m_LinkedKey != null)
+            {
+                m_LinkedKey.RemoveFromKey(this);
+            }
+
+            m_LinkedKey = key;
+        }
+
+        public void TryLink(Key key)
+        {
+            // Snap to key
+            if (key != null && key != m_LinkedKey && key.LinkToKey(this))
+            {
+                // delink previous Key
+                if(m_LinkedKey != null)
+                {
+                    m_LinkedKey.RemoveFromKey(this);
+                }
+
+                m_LinkedKey = key;
+                m_CanReplace = false;
+
+                StartCoroutine(ResetItem());                
+            }
+            else
+            {
+                // Let this item return to its original position
+                transform.DOMove(m_DraggingOrigin, 0.3f, false);
+            }
         }
 
         IEnumerator ResetItem()
