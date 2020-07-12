@@ -10,11 +10,6 @@
 # VSCode file
 .vscode
 
-# Assets
-/Assets/*
-!/Assets/Scripts.meta
-!/Assets/Scripts
-
 # unity ignore file
 *.csproj
 *.unityproj
