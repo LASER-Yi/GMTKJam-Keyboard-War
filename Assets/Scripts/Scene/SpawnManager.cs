@@ -38,6 +38,7 @@ public class SpawnManager : MonoBehaviour
         {
             if(m_GameStarted)
             {
+                GameManager.Instance.m_NextEnemyRound = new KeyValuePair<float, float>(Time.time, m_EnemySpawnRound);
                 yield return new WaitForSeconds(m_EnemySpawnRound);
 
                 foreach(var spawner in m_EnemiesSpawners)
@@ -59,6 +60,7 @@ public class SpawnManager : MonoBehaviour
         {
             if(m_GameStarted)
             {
+                GameManager.Instance.m_NextItemRound = new KeyValuePair<float, float>(Time.time, m_ItemSpawnRound);
                 yield return new WaitForSeconds(m_ItemSpawnRound);
 
                 if(count % 4 < 3)

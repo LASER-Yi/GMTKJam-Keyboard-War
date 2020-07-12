@@ -21,10 +21,8 @@ namespace Keyboard
             m_Activation = false;
         }
 
-        new protected void Update()
+        private void LateUpdate() 
         {
-            base.Update();
-
             if (m_Activation && m_LinkedKey)
             {
                 Cooling();

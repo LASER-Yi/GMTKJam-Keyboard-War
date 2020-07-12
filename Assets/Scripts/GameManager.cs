@@ -26,7 +26,7 @@ public class GameManager
     {
         get
         {
-            return Mathf.Max(0.0f, m_NextItemRound.Value - Time.deltaTime - m_NextItemRound.Key);
+            return Mathf.Max(0.0f, m_NextItemRound.Value - (Time.time - m_NextItemRound.Key));
         }
     }
 
@@ -34,18 +34,25 @@ public class GameManager
     {
         get
         {
-            return Mathf.Max(0.0f, m_NextEnemyRound.Value - Time.time - m_NextEnemyRound.Key);
+            return Mathf.Max(0.0f, m_NextEnemyRound.Value - (Time.time - m_NextEnemyRound.Key));
         }
     }
+
+    public int m_HighestScore = 0;
+    public int m_SessionScore = 0;
 
     public void StartGame()
     {
         GameObject.FindObjectOfType<SpawnManager>().StartGame();
+        GameObject.FindObjectOfType<UIManager>().StartGame();
+
+        m_HighestScore = Mathf.Max(m_HighestScore, m_SessionScore);
+        m_SessionScore = 0;
     }
 
     public void StopGame(bool result)
     {
-        
+
     }
 
     public void TowerDidExplosion()

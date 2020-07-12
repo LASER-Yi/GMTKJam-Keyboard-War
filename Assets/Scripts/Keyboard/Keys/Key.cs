@@ -80,7 +80,7 @@ namespace Keyboard
 
         // Once the key has item, the around can link 
         // The method will be call by around key
-        protected void MarkLinkStatusChanged()
+        protected void LinkStatusChanged()
         {
 
             if(m_ItemCount > 0)
@@ -94,6 +94,14 @@ namespace Keyboard
             {
                 if(key.m_ItemCount > 0)
                 {
+                    // limit the moving dir so player needs to have at least two towers before moving forward
+                    var direction = (key.transform.position - transform.position).normalized;
+                    // hardcode pos-x direction
+                    if(Vector3.Dot(Vector3.left, direction) > 0.8 && key.m_ItemCount < 2)
+                    {
+                        continue;
+                    }
+
                     canLink = true;
                     break;
                 }
@@ -120,11 +128,11 @@ namespace Keyboard
                 }
 
                 m_ItemLink.Add(item);
-                if(m_ItemCount == 1)
+                if(m_ItemCount <= 2)
                 {
                     foreach(var key in m_KeyLink)
                     {
-                        key.MarkLinkStatusChanged();
+                        key.LinkStatusChanged();
                     }
                 }
 
@@ -145,7 +153,7 @@ namespace Keyboard
             {
                 foreach(var key in m_KeyLink)
                 {
-                    key.MarkLinkStatusChanged();
+                    key.LinkStatusChanged();
                 }
             }
         }
@@ -241,12 +249,7 @@ namespace Keyboard
         {
             int index = GetFloorIndex(item);
             UpdateAroundHeat(index, item.m_ExplosionDamage);
-
-            if(m_ItemLink.Remove(item))
-            {
-                // Reorder the tower
-                ReorderItems();
-            }
+            RemoveFromKey(item);
         }
 
         protected BaseItem SafeItemIndex(int index)

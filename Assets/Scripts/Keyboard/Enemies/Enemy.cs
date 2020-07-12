@@ -40,6 +40,8 @@ namespace Keyboard
 
             if(m_Health <= 0)
             {
+                // TODO: Move out of here
+                GameManager.Instance.m_SessionScore += 100;
                 ExplosionImmediate();
                 return;
             }

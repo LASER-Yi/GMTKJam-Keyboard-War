@@ -21,6 +21,7 @@ namespace Keyboard
         [Header("Search")]
         // Radius boost when placing in higher floor
         public float m_ScanRadius = 10.0f;
+        public float m_FloorBoost = 5.0f;
         public float m_ForceScanInterval = 1.0f;
         private float m_RescanTimer = 0;
 
@@ -117,14 +118,13 @@ namespace Keyboard
 
         private float GetScanRadius()
         {
-            // Add Boost later
-            float boost = 1.0f;
+            var radius = m_ScanRadius;
             if(m_LinkedKey)
             {
-                // TODO: Adjust
-                boost += 0.2f * Mathf.Max(m_LinkedKey.GetFloorIndex(this), 0);
+                radius += m_FloorBoost * Mathf.Max(m_LinkedKey.GetFloorIndex(this), 0);
             }
-            return m_ScanRadius * boost;
+
+            return radius;
         }
 
         private void ScanForEnemy()
