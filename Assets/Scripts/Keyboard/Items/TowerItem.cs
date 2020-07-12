@@ -6,6 +6,9 @@ namespace Keyboard
 {
     public class TowerItem : BaseItem
     {
+        [Header("Sound")]
+        public AudioClip m_SoundShoot;
+
         [Header("Shoot")]
         public float m_ShootInterval = 0.6f;
         public int m_ShootHeat = 5;
@@ -114,6 +117,7 @@ namespace Keyboard
         {
             Instantiate(m_BulletPrefab, m_StartAt.position, m_StartAt.rotation, null);
             this.Damage(m_ShootHeat);
+            PlaySound(m_SoundShoot);
         }
 
         private float GetScanRadius()

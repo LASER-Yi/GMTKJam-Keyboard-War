@@ -40,6 +40,9 @@ public class GameManager
 
     public int m_HighestScore = 0;
     public int m_SessionScore = 0;
+    public bool m_SessionResult = false;
+
+    public bool m_DidShowResult = false;
 
     public void StartGame()
     {
@@ -48,11 +51,17 @@ public class GameManager
 
         m_HighestScore = Mathf.Max(m_HighestScore, m_SessionScore);
         m_SessionScore = 0;
+        m_DidShowResult = false;
     }
 
     public void StopGame(bool result)
     {
+        if(m_DidShowResult) return;
 
+        m_DidShowResult = true;
+        m_SessionResult = result;
+        UIManager.Instance.StopGame();
+        SpawnManager.Instance.StopGame();
     }
 
     public void TowerDidExplosion()

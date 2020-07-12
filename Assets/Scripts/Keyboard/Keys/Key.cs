@@ -46,6 +46,7 @@ namespace Keyboard
             }
 
             m_Material = GetComponent<Renderer>().material;
+            m_OriginalColor = m_Material.GetColor(m_BaseColorName);
         }
         protected bool m_KeyCanLink = false;
 
@@ -69,6 +70,7 @@ namespace Keyboard
 
         [Header("Status"), ColorUsage(false, false)]
         public Color m_ExplosionColor;
+        private Color m_OriginalColor;
 
         public void DidSelectedKey()
         {
@@ -115,7 +117,8 @@ namespace Keyboard
                 }
                 else
                 {
-                    item.transform.DOMove(pos, 0.4f);
+                    item.transform.DOJump(pos, 5.0f, 1, 0.5f);
+                    // item.transform.DOMove(pos, 0.4f);
                     GameManager.Instance.TowerDidLink();
                 }
 
@@ -184,13 +187,13 @@ namespace Keyboard
             }
         }
 
-        public void KeyTransfer(Key to)
+        public void Transfer(Key to)
         {
             // get the toppest item in self and transfer to to key
             if(m_ItemCount == 0) return;
 
             var item = m_ItemLink[m_ItemCount - 1];
-            item.TryLink(to);
+            item.TryLink(to, false);
         }
 
         private void DeactivateAll()
@@ -260,6 +263,12 @@ namespace Keyboard
             {
                 var item = SafeItemIndex(i);
                 if(item) item.Damage(damage);
+            }
+
+            if(damage > 0)
+            {
+                m_Material.SetColor(m_BaseColorName, m_ExplosionColor);
+                m_Material.DOColor(m_OriginalColor, m_BaseColorName, 0.6f);
             }
         }
 

@@ -6,6 +6,7 @@ using DG.Tweening;
 namespace Keyboard
 {
     [RequireComponent(typeof(BoxCollider))]
+    [RequireComponent(typeof(AudioSource))]
     public class Enemy : MonoBehaviour
     {
         [SerializeField] private float m_Health = 100;
@@ -19,19 +20,29 @@ namespace Keyboard
             }
         }
 
-        public Material m_Material;
+        [HideInInspector] public Material m_Material;
 
         public Color m_ExplosionColor;
         public float m_ExplosionDelay = 3f;
         public int m_ExplosionDamage = 100;
-        public Key m_StandingKey;
+        public AudioClip m_ExplosionSound;
+        public AudioClip m_JumpSound;
+        [HideInInspector] public Key m_StandingKey;
         private BoxCollider m_Collider;
         private Coroutine m_ExplosionRoutine = null;
+        private AudioSource m_AudioSource;
 
         private void Awake() 
         {
             m_Collider = GetComponent<BoxCollider>();
             m_Material = GetComponent<Renderer>().material;
+            m_AudioSource = GetComponent<AudioSource>();
+        }
+
+        private void PlaySound(AudioClip clip)
+        {
+            m_AudioSource.clip = clip;
+            m_AudioSource.Play();
         }
 
         private void Update()
@@ -122,6 +133,20 @@ namespace Keyboard
             Vector3 position = ComputeStandPosition(to);
             transform.DOJump(position, 1.0f, 1, 0.4f);
             m_LastJumpTimestamp = Time.time;
+
+            PlaySound(m_JumpSound);
+
+            // Check if we win or not
+            switch (m_StandingKey.m_KeyCode)
+            {
+                case KeyCode.LeftShift:
+                case KeyCode.Tab:
+                case KeyCode.CapsLock:
+                    GameManager.Instance.StopGame(false);
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void Explosion()
@@ -133,6 +158,7 @@ namespace Keyboard
         {
             GameManager.Instance.EnemeyDidExplosion();
             if(m_StandingKey) m_StandingKey.EnemeyDidExplosion(this);
+            CameraController.Instance.PlayEnemySound(m_ExplosionSound);
             DestroyImmediate(gameObject);
         }
 

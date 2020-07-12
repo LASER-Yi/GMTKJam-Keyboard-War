@@ -21,7 +21,7 @@ namespace Keyboard
                 if(Input.GetKeyUp(pair.Key))
                 {
                     // Move toppest item in spawn to here
-                    SpawnManager.Instance.m_ItemSpawner.KeyTransfer(pair.Value);
+                    SpawnManager.Instance.m_ItemSpawner.Transfer(pair.Value);
                     return;
                 }
             }

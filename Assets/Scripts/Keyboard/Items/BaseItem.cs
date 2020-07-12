@@ -8,6 +8,7 @@ namespace Keyboard
 {
     // Create Basic behaviour of item
     [RequireComponent(typeof(BoxCollider))]
+    [RequireComponent(typeof(AudioSource))]
     public class BaseItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         // Heat from 0 - 100
@@ -16,17 +17,42 @@ namespace Keyboard
         [Tooltip("Per Second")]
         public float m_HeatDissipation = 0.1f;
         public int m_ExplosionDamage = 25;
+        private bool m_WillExpolsion
+        {
+            get
+            {
+                return m_DidExplosion != null;
+            }
+        }
+        private Coroutine m_DidExplosion = null;
 
-        public Material m_Material;
+        public float m_ExplosionDelay = 1.0f;
+        private Material m_Material;
 
         [HideInInspector] public BoxCollider m_Collider;
 
         [HideInInspector] public bool m_CanReplace = true;
+        private AudioSource m_AudioSource;
+        [Header("Sound")]
+        public AudioClip m_SoundLinkFail;
+        public AudioClip m_SoundExplosion;
+
+        protected void PlaySound(AudioClip clip)
+        {
+            m_AudioSource.clip = clip;
+            m_AudioSource.Play();
+        }
+
+        protected void RemotePlaySound(AudioClip clip)
+        {
+            CameraController.Instance.PlayPlayerSound(clip);
+        }
 
         // Mono
         protected void Awake()
         {
             m_Collider = GetComponent<BoxCollider>();
+            m_AudioSource = GetComponent<AudioSource>();
             m_Material = GetComponent<Renderer>().material;
             m_Material.SetColor("_BaseColor", m_MinHeatColor);
         }
@@ -60,13 +86,10 @@ namespace Keyboard
         {
             if(m_DidExplosion == null)
             {
+                m_Material.SetColor("_BaseColor", m_BurningColor);
                 m_DidExplosion = StartCoroutine(ExplosionDelay());
             }
         }
-
-        private Coroutine m_DidExplosion = null;
-
-        public float m_ExplosionDelay = 1.0f;
 
         IEnumerator ExplosionDelay()
         {
@@ -78,6 +101,7 @@ namespace Keyboard
                 m_LinkedKey.DidExplosion(this);
             }
             GameManager.Instance.TowerDidExplosion();
+            RemotePlaySound(m_SoundExplosion);
             DestroyImmediate(gameObject);
         }
 
@@ -162,9 +186,10 @@ namespace Keyboard
             m_LinkedKey = key;
         }
 
-        public void TryLink(Key key)
+        public void TryLink(Key key, bool dragging = true)
         {
             // Snap to key
+            Vector3 origin = transform.position;
             if (key != null && key != m_LinkedKey && key.LinkToKey(this))
             {
                 // delink previous Key
@@ -180,8 +205,12 @@ namespace Keyboard
             }
             else
             {
-                // Let this item return to its original position
-                transform.DOMove(m_DraggingOrigin, 0.3f, false);
+                if(dragging)
+                {
+                    // Let this item return to its original position
+                    transform.DOMove(m_DraggingOrigin, 0.3f, false);
+                }
+                PlaySound(m_SoundLinkFail);
             }
         }
 
@@ -207,6 +236,7 @@ namespace Keyboard
         [Header("Color")]
         public Color m_MinHeatColor;
         public Color m_MaxHeatColor;
+        public Color m_BurningColor;
 
         public virtual void Damage(float damage)
         {
@@ -217,9 +247,13 @@ namespace Keyboard
 
             float percent = m_CurrentHeat / 100.0f;
 
-            Color current = Color.Lerp(m_MinHeatColor, m_MaxHeatColor, percent);
+            if(!m_WillExpolsion)
+            {
+                Color current = Color.Lerp(m_MinHeatColor, m_MaxHeatColor, percent);
+                m_Material.SetColor("_BaseColor", current);
+            }
 
-            m_Material.SetColor("_BaseColor", current);
+            
         }
 
     }
